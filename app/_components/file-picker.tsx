@@ -9,16 +9,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { TCorpus } from "@/lib/types"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { ITag, ITagset, TCorpus } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { usePosTaggingStore } from "@/store/use-pos-tagging-store"
+import { usePosTaggerStore } from "@/store/use-pos-tagger-store"
 import { File } from "lucide-react"
 import { DragEvent, useRef, useState } from "react"
+import { useMediaQuery } from "react-responsive"
+import { toast } from "sonner"
 
 export default function FilePicker() {
-  const setCorpus = usePosTaggingStore((state) => state.setCorpus)
+  const setCorpus = usePosTaggerStore((state) => state.setCorpus)
+  const setTagset = usePosTaggerStore((state) => state.setTagset)
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [isHover, setIsHover] = useState(false)
+  const isDesktop = useMediaQuery({
+    query: "(min-width: 640px)",
+  })
 
   const doPickFile = () => {
     if (!fileRef.current) return
@@ -27,32 +42,64 @@ export default function FilePicker() {
 
   const onInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.currentTarget.files) return
-    const item = event.currentTarget.files[0]
-    const data = (await new Response(item).json()) as string[][]
-    const output: TCorpus = data.map((words) =>
-      words.map((word) => ({ word: word, tagId: -1 }))
-    )
-    setCorpus(output)
+    try {
+      const item = event.currentTarget.files[0]
+      const parsedFile = await new Response(item).json()
+      const isContinue = parsedFile["app"] === "yer"
+      if (isContinue) {
+        const data = parsedFile as {
+          app: string
+          corpus: TCorpus
+          tagset: ITagset
+        }
+        setCorpus(data.corpus)
+        setTagset(data.tagset)
+      } else {
+        const data = parsedFile as string[][]
+        const output: TCorpus = data.map((words) =>
+          words.map((word) => ({ word: word, tagId: 0 }))
+        )
+        setCorpus(output)
+      }
+    } catch (e) {
+      toast.error("Cannot parse file. Please try again.")
+    }
   }
 
   const handleOnDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     setIsHover(false)
-    const items = Array.from(event.dataTransfer.items)
-    let file
-    if (!items) return
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i]
-      if (item.kind === "file") {
-        file = item.getAsFile()
-        break
+    try {
+      const items = Array.from(event.dataTransfer.items)
+      let file
+      if (!items) return
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.kind === "file") {
+          file = item.getAsFile()
+          break
+        }
       }
+      const parsedFile = await new Response(file).json()
+      const isContinue = parsedFile["app"] === "yer"
+      if (isContinue) {
+        const data = parsedFile as {
+          app: string
+          corpus: TCorpus
+          tagset: ITagset
+        }
+        setCorpus(data.corpus)
+        setTagset(data.tagset)
+      } else {
+        const data = parsedFile as string[][]
+        const output: TCorpus = data.map((words) =>
+          words.map((word) => ({ word: word, tagId: 0 }))
+        )
+        setCorpus(output)
+      }
+    } catch (e) {
+      toast.error("Cannot parse file. Please try again.")
     }
-    const data = (await new Response(file).json()) as string[][]
-    const output: TCorpus = data.map((words) =>
-      words.map((word) => ({ word: word, tagId: -1 }))
-    )
-    setCorpus(output)
   }
 
   const handleOnDragEnter = (event: DragEvent<HTMLDivElement>) => {
@@ -74,12 +121,12 @@ export default function FilePicker() {
   }
   return (
     <div className="h-full flex flex-col items-center justify-center gap-4">
-      <h1 className="font-bold text-5xl tracking-tighter text-primary">
-        Yet Another Labeler
+      <h1 className="text-center font-bold text-xl sm:text-5xl tracking-tighter text-primary">
+        Tagger for Developer
       </h1>
       <div
         className={cn(
-          "group max-w-xl w-full flex flex-col items-center justify-center py-8 px-4 border dark:border-neutral-800 rounded-2xl gap-4 bg-neutral-50 dark:bg-neutral-900 ring ring-offset-2 dark:ring-offset-0 ring-transparent transition-all",
+          "group mx-4 max-w-xl sm:w-full flex flex-col items-center justify-center p-6 sm:py-8 sm:px-4 border dark:border-neutral-800 rounded-2xl gap-2 sm:gap-4 bg-neutral-50 dark:bg-neutral-900 ring ring-offset-2 dark:ring-offset-0 ring-transparent transition-all",
           isHover && "ring-neutral-700"
         )}
         onDrop={handleOnDrop}
@@ -93,34 +140,57 @@ export default function FilePicker() {
           </div>
         </div>
         <div className="text-center">
-          <p className="font-bold tracking-tight">
-            Drag and drop file to upload
+          <p className="text-sm sm:text-base font-bold tracking-tight">
+            Drag and drop file
           </p>
-          <p className="text-neutral-500 text-sm font-medium tracking-tight">
-            We only accept file with certain{" "}
-            <Dialog>
-              <DialogTrigger>
-                <span className="underline">structures</span>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Accepted file structures</DialogTitle>
-                  <DialogDescription>
-                    data.json
-                    <code className="block whitespace-pre-wrap">
-                      {`
+          <p className="text-neutral-500 text-xs sm:text-sm font-medium tracking-tight">
+            Saved yer.json file or json file with certain{" "}
+            {isDesktop ? (
+              <Dialog>
+                <DialogTrigger>
+                  <span className="underline">structures</span>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Accepted file structures</DialogTitle>
+                    <DialogDescription>data.json</DialogDescription>
+                  </DialogHeader>
+                  <code className="block whitespace-pre-wrap">
+                    {`
 [
-  ['word1','word2','word3','word4','word5','word6', ...],
-  ['word1','word2','word3','word4','word5','word6', ...],
-  ['word1','word2','word3','word4','word5','word6', ...],
+  ['word1','word2','word3', ...],
+  ['word1','word2','word3', ...],
+  ['word1','word2','word3', ...],
   ...
 ]
                       `}
-                    </code>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                  </code>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Drawer>
+                <DrawerTrigger>
+                  <span className="underline">structures</span>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader className="text-left">
+                    <DrawerTitle>Accepted file structures</DrawerTitle>
+                    <DrawerDescription>data.json</DrawerDescription>
+                  </DrawerHeader>
+                  <code className="block whitespace-pre-wrap px-4 text-xs">
+                    {`
+[
+  ['word1','word2','word3', ...],
+  ['word1','word2','word3', ...],
+  ['word1','word2','word3', ...],
+  ...
+]
+        `}
+                  </code>
+                  <DrawerFooter />
+                </DrawerContent>
+              </Drawer>
+            )}
           </p>
         </div>
         <input
@@ -131,7 +201,10 @@ export default function FilePicker() {
           ref={fileRef}
           onChange={onInputChange}
         />
-        <Button size="sm" onClick={doPickFile}>
+        <Button
+          className="w-auto h-auto p-2 font-medium text-xs sm:text-sm"
+          onClick={doPickFile}
+        >
           Select file
         </Button>
       </div>

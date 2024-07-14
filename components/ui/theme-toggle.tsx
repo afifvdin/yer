@@ -30,10 +30,10 @@ export function ThemeToggle() {
               <Button
                 size="sm"
                 variant="outline"
-                className="relative rounded-full w-auto aspect-square p-2.5"
+                className="relative rounded-full w-auto h-auto p-1.5 sm:p-2.5"
               >
-                <Sun className="size-8 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <Sun className="duration-700 size-4 rotate-0 scale-100 transition-all dark:-rotate-180 dark:scale-0" />
+                <Moon className="duration-700 absolute size-4 rotate-180 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
