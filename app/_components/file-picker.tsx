@@ -29,18 +29,38 @@ import { toast } from "sonner"
 export default function FilePicker() {
   const setCorpus = usePosTaggerStore((state) => state.setCorpus)
   const setTagset = usePosTaggerStore((state) => state.setTagset)
+  const addTags = usePosTaggerStore((state) => state.addTags)
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [isHover, setIsHover] = useState(false)
   const isDesktop = useMediaQuery({
     query: "(min-width: 640px)",
   })
 
-  const doPickFile = () => {
+  const handlePickFile = () => {
     if (!fileRef.current) return
     fileRef.current.click()
   }
 
-  const onInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUseSample = () => {
+    setCorpus([
+      [
+        { word: "The", tagId: 1 },
+        { word: "quick", tagId: 2 },
+        { word: "brown", tagId: 2 },
+        { word: "fox", tagId: 3 },
+        { word: "jumps", tagId: 4 },
+        { word: "over", tagId: 5 },
+        { word: "the", tagId: 1 },
+        { word: "lazy", tagId: 2 },
+        { word: "dog", tagId: 3 },
+      ],
+    ])
+    addTags(["DT", "JJ", "NN", "VBZ", "IN"])
+  }
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (!event.currentTarget.files) return
     try {
       const item = event.currentTarget.files[0]
@@ -119,6 +139,7 @@ export default function FilePicker() {
       setIsHover(false)
     }
   }
+
   return (
     <div className="h-full flex flex-col items-center justify-center gap-4">
       <h1 className="text-center font-bold text-xl sm:text-5xl tracking-tighter text-primary">
@@ -199,14 +220,23 @@ export default function FilePicker() {
           accept=".json"
           className="hidden"
           ref={fileRef}
-          onChange={onInputChange}
+          onChange={handleFileChange}
         />
-        <Button
-          className="w-auto h-auto p-2 font-medium text-xs sm:text-sm"
-          onClick={doPickFile}
-        >
-          Select file
-        </Button>
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            className="w-auto h-auto p-2 font-medium text-xs sm:text-sm"
+            onClick={handlePickFile}
+          >
+            Select file
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-accent hover:bg-accent/80 w-auto h-auto p-2 font-medium text-xs sm:text-sm"
+            onClick={handleUseSample}
+          >
+            Use Sample
+          </Button>
+        </div>
       </div>
     </div>
   )

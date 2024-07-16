@@ -116,7 +116,7 @@ export default function BottomMenu() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 p-4 sm:p-8 w-full flex items-center justify-center">
+    <div className="fixed bottom-0 left-0 sm:p-8 w-full sm:flex sm:items-center sm:justify-center">
       <NewTagsDialog
         open={openDialog.newTags}
         setOpen={(open: boolean) =>
@@ -143,103 +143,108 @@ export default function BottomMenu() {
         }
         tag={selectedTag}
       />
-      <div className="bg-background p-1.5 sm:p-2 rounded-lg border shadow-xl flex items-center justify-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3"
-            >
-              Tagset ({Object.keys(tagset).length})
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top">
-            <DropdownMenuGroup className="max-h-48 overflow-y-auto">
-              {Object.keys(tagset).map((key, index) => {
-                return (
-                  <DropdownMenuSub key={key}>
-                    <DropdownMenuSubTrigger>
-                      {tagset[parseInt(key)].name}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem
-                        onSelect={() => {
-                          setSelectedTag({
-                            id: parseInt(key),
-                            ...tagset[parseInt(key)],
-                          })
-                          setOpenDialog({ ...openDialog, editTag: true })
-                        }}
-                      >
-                        Edit..
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onSelect={() => {
-                          setSelectedTag({
-                            id: parseInt(key),
-                            ...tagset[parseInt(key)],
-                          })
-                          setOpenDialog({ ...openDialog, removeTag: true })
-                        }}
-                        className="text-red-500 hover:!text-red-500"
-                      >
-                        Remove
-                      </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                )
-              })}
-            </DropdownMenuGroup>
-            {Object.keys(tagset).length > 0 && <DropdownMenuSeparator />}
-            <DropdownMenuItem
-              onSelect={() => setOpenDialog({ ...openDialog, newTags: true })}
-            >
-              Add..
-            </DropdownMenuItem>
-            {Object.keys(tagset).length > 0 && (
-              <DropdownMenuItem
-                onSelect={() =>
-                  setOpenDialog({ ...openDialog, resetTagset: true })
-                }
-                className="text-red-500 hover:!text-red-500"
+      <ScrollArea>
+        <div className="bg-background p-4 sm:p-2 sm:rounded-lg border-t sm:border sm:shadow-xl flex items-center sm:justify-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3"
               >
-                Reset
+                Tagset ({Object.keys(tagset).length})
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top">
+              <DropdownMenuGroup className="max-h-48 overflow-y-auto">
+                {Object.keys(tagset).map((key, index) => {
+                  return (
+                    <DropdownMenuSub key={key}>
+                      <DropdownMenuSubTrigger>
+                        {tagset[parseInt(key)].name}
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setSelectedTag({
+                              id: parseInt(key),
+                              ...tagset[parseInt(key)],
+                            })
+                            setOpenDialog({ ...openDialog, editTag: true })
+                          }}
+                        >
+                          Edit..
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setSelectedTag({
+                              id: parseInt(key),
+                              ...tagset[parseInt(key)],
+                            })
+                            setOpenDialog({ ...openDialog, removeTag: true })
+                          }}
+                          className="text-red-500 hover:!text-red-500"
+                        >
+                          Remove
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  )
+                })}
+              </DropdownMenuGroup>
+              {Object.keys(tagset).length > 0 && <DropdownMenuSeparator />}
+              <DropdownMenuItem
+                onSelect={() => setOpenDialog({ ...openDialog, newTags: true })}
+              >
+                Add..
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <span className="text-neutral-300 dark:text-neutral-700">|</span>
-        <Button
-          onClick={handleOpenCommand}
-          variant="outline"
-          className="h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3"
-        >
-          Jump to..{" "}
-          <kbd
-            className={cn(
-              GeistMono.className,
-              "ml-2 border text-xs py-0.5 px-1 bg-background rounded leading-none"
-            )}
+              {Object.keys(tagset).length > 0 && (
+                <DropdownMenuItem
+                  onSelect={() =>
+                    setOpenDialog({ ...openDialog, resetTagset: true })
+                  }
+                  className="text-red-500 hover:!text-red-500"
+                >
+                  Reset
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <span className="text-neutral-300 dark:text-neutral-700">|</span>
+          <Button
+            onClick={handleOpenCommand}
+            variant="outline"
+            className="h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3"
           >
-            ⌘ K
-          </kbd>
-        </Button>
-        <span className="text-neutral-300 dark:text-neutral-700">|</span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="font-semibold h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3">
-              <span>Corpus</span>
-              <ChevronUp className="size-4 ml-1" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top">
-            <DropdownMenuItem onSelect={handleExport}>Export</DropdownMenuItem>
-            <DropdownMenuItem onSelect={handleSave}>
-              Save to tag later
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            Jump to..{" "}
+            <kbd
+              className={cn(
+                GeistMono.className,
+                "ml-2 border text-xs py-0.5 px-1 bg-background rounded leading-none"
+              )}
+            >
+              ⌘ K
+            </kbd>
+          </Button>
+          <span className="text-neutral-300 dark:text-neutral-700">|</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="font-semibold h-auto w-auto text-sm py-1 sm:py-1.5 px-2 sm:px-3">
+                <span>Corpus</span>
+                <ChevronUp className="size-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top">
+              <DropdownMenuItem onSelect={handleExport}>
+                Export
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleSave}>
+                Save to tag later
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Scrollbar orientation="horizontal" />
+      </ScrollArea>
       <CommandComponent list={documentList} />
     </div>
   )
