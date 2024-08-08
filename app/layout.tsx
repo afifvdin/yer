@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { GeistSans } from "geist/font/sans"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Yer",
@@ -17,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full bg-background" suppressHydrationWarning>
-      <body className={cn(GeistSans.className, "h-full bg-background")}>
+      <body className={cn(inter.className, "h-full bg-background")}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Toaster />
           {children}
