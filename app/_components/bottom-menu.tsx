@@ -323,8 +323,8 @@ const NewTagsDialog = ({ open, setOpen }: IDialog) => {
 const EditTagDialog = ({ open, setOpen, tag }: IDialogTagId) => {
   const updateTag = usePosTaggerStore((state) => state.updateTag)
   const [updatedTag, setUpdatedTag] = useState({
-    name: tag.name,
-    colorId: tag.colorId,
+    name: "",
+    colorId: -1,
   })
   const isDesktop = useMediaQuery({
     query: "(min-width: 640px)",
@@ -338,7 +338,6 @@ const EditTagDialog = ({ open, setOpen, tag }: IDialogTagId) => {
   }
 
   const handleUpdateTag = () => {
-    console.log(updatedTag)
     updateTag(tag.id, {
       name: updatedTag.name === "" ? tag.name : updatedTag.name,
       colorId: updatedTag.colorId === -1 ? tag.colorId : updatedTag.colorId,
@@ -359,7 +358,7 @@ const EditTagDialog = ({ open, setOpen, tag }: IDialogTagId) => {
           <div className="flex items-center gap-2">
             <Input
               placeholder={tag.name}
-              value={updatedTag.name === "" ? tag.name : updatedTag.name}
+              value={updatedTag.name}
               onChange={handleChangeName}
             />
             <DropdownMenu>
