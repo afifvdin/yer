@@ -18,8 +18,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="h-full bg-background" suppressHydrationWarning>
-      <body className={cn(inter.className, "h-full bg-background")}>
+    <html
+      lang="en"
+      className={cn(inter.className, "h-full bg-background")}
+      suppressHydrationWarning
+    >
+      <body className="h-full bg-background">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Toaster />
           {children}
